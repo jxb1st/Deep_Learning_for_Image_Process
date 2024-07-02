@@ -87,6 +87,7 @@ def window_reverse(windows, window_size: int, H: int, W: int):
 class PatchEmbed(nn.Module):
     """
     2D Image to Patch Embedding
+    用卷积网络实现embedding
     """
     def __init__(self, patch_size=4, in_c=3, embed_dim=96, norm_layer=None):
         super().__init__()
@@ -473,12 +474,12 @@ class SwinTransformer(nn.Module):
           https://arxiv.org/pdf/2103.14030
 
     Args:
-        patch_size (int | tuple(int)): Patch size. Default: 4
-        in_chans (int): Number of input image channels. Default: 3
-        num_classes (int): Number of classes for classification head. Default: 1000
-        embed_dim (int): Patch embedding dimension. Default: 96
-        depths (tuple(int)): Depth of each Swin Transformer layer.
-        num_heads (tuple(int)): Number of attention heads in different layers.
+        patch_size (int | tuple(int)): Patch size. Default: 4 下采样多少倍
+        in_chans (int): Number of input image channels. Default: 3 RGB
+        num_classes (int): Number of classes for classification head. Default: 1000 类
+        embed_dim (int): Patch embedding dimension. Default: 96 linear embedding之后映射得到的
+        depths (tuple(int)): Depth of each Swin Transformer layer. 每一个stage重复swin transformer block的次数
+        num_heads (tuple(int)): Number of attention heads in different layers. swin transformer block中attention head的个数
         window_size (int): Window size. Default: 7
         mlp_ratio (float): Ratio of mlp hidden dim to embedding dim. Default: 4
         qkv_bias (bool): If True, add a learnable bias to query, key, value. Default: True
@@ -503,7 +504,7 @@ class SwinTransformer(nn.Module):
         self.embed_dim = embed_dim
         self.patch_norm = patch_norm
         # stage4输出特征矩阵的channels
-        self.num_features = int(embed_dim * 2 ** (self.num_layers - 1))
+        self.num_features = int(embed_dim * 2 ** (self.num_layers - 1)) # stage4所输出的特征矩阵的channel (8)
         self.mlp_ratio = mlp_ratio
 
         # split image into non-overlapping patches
